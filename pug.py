@@ -108,7 +108,7 @@ def cmd_add(userName, userCommand):
                 printUserList()
 
             if len(lobby.players) >= (getTeamSize() * 2) and lobby.class_count('medic') > 1:
-                if lobby.class_count('demo') < 2 or lobby.class_count('scout') < 4 or lobby.class_count('soldier') < 3:
+                if lobby.class_count('demo') < 2 or lobby.class_count('scout') < 4 or lobby.class_count('soldier') < 4:
                     return 0
                 if state == 'captain' and lobby.captain_count() < 2:
                     send("PRIVMSG " + config.channel + " :\x037,01Warning!\x030,01 This PUG needs 2 captains to start.")
@@ -415,8 +415,16 @@ def getAvailableClasses():
 
 def getAvailableServer():
     for server in getServerList():
-        if server['last'] >= 0 and (time.time() - server['last']) >= (60 * 75):
-            return {'ip': server['dns'], 'port': server['port']}
+        try:
+            serverInfo = getServerInfo(server)
+            for s in serverInfo['serverStatus'].strip().split("\n"):
+                if re.search("^players", s):
+                    serverInfo['playerCount'] = s.split(" ")[2]
+            if 3 > int(serverInfo['playerCount']) and not re.search("^Tournament is not live", serverInfo['tournamentInfo']):
+                print {'ip':server['dns'], 'port':server['port']}
+                return {'ip':server['dns'], 'port':server['port']}
+        except:
+            print server['dns'] + ": error processing the server info"
     return 0
 
 
