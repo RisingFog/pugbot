@@ -420,7 +420,7 @@ def getAvailableServer():
             for s in serverInfo['serverStatus'].strip().split("\n"):
                 if re.search("^players", s):
                     serverInfo['playerCount'] = s.split(" ")[2]
-            if 3 > int(serverInfo['playerCount']) and not re.search("^Tournament is not live", serverInfo['tournamentInfo']):
+            if 3 > int(serverInfo['playerCount']) and re.search("^Tournament is not live", serverInfo['tournamentInfo']) and (time.time() - server['last']) >= (60 * 15)
                 print {'ip':server['dns'], 'port':server['port']}
                 return {'ip':server['dns'], 'port':server['port']}
         except:
